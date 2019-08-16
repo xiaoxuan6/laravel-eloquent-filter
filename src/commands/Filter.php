@@ -157,7 +157,7 @@ class $class extends Filter
      *
      * @var array
      */
-    protected $filterField = [];
+    protected $"."filterField = [];
 
 }";
     }

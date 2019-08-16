@@ -51,7 +51,7 @@ abstract class Filter
     {
         $this->builder = $builder;
 
-            foreach ($this->parames() as $key => $v)
+        foreach ($this->parames() as $key => $v)
         {
             $this->callFunc($key, $v);
         }
