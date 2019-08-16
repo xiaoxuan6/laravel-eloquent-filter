@@ -25,6 +25,13 @@ abstract class Filter
     protected $builder;
 
     /**
+     * The Eloquent field
+     *
+     * @var array
+     */
+    protected $filterField = [];
+
+    /**
      * Create a new ThreadFilters instance.
      *
      * @param Request $request
@@ -44,13 +51,33 @@ abstract class Filter
     {
         $this->builder = $builder;
 
-        foreach ($this->parames() as $key => $v)
+            foreach ($this->parames() as $key => $v)
         {
-            if(method_exists($this, $key)) {
-                call_user_func([$this, $key], $v);
+            $this->callFunc($key, $v);
+        }
+
+        if(count($this->filterField) > 0)
+        {
+            foreach ($this->filterField as $val)
+            {
+                $this->callFunc($val);
             }
         }
+
         return $this->builder;
+    }
+
+    /**
+     *
+     * @param $builder
+     * @param $key
+     * @param string $val
+     */
+    protected function callFunc($key, $val = '')
+    {
+        if(method_exists($this, $key)) {
+            call_user_func([$this, $key], $val);
+        }
     }
 
     /**

@@ -152,6 +152,12 @@ use James\Eloquent\Filter\Filter;
 
 class $class extends Filter
 {
+    /**
+     * Array of input used to filter the query.
+     *
+     * @var array
+     */
+    protected $filterField = [];
 
 }";
     }
