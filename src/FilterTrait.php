@@ -9,8 +9,8 @@ namespace James\Eloquent\Filter;
 
 trait FilterTrait
 {
-    public function scopeFilter($query, Filter $filter)
+    public function scopeFilter($query, Filter $filter, $params = [])
     {
-        return $filter->filter($query);
+        return $filter->appendField($params)->filter($query);
     }
 }

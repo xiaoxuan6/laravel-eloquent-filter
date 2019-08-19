@@ -9,6 +9,7 @@ namespace James\Eloquent\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 abstract class Filter
 {
@@ -51,17 +52,9 @@ abstract class Filter
     {
         $this->builder = $builder;
 
-        foreach ($this->parames() as $key => $v)
+        foreach ($this->parames() + array_flip($this->filterField) as $key => $v)
         {
             $this->callFunc($key, $v);
-        }
-
-        if(count($this->filterField) > 0)
-        {
-            foreach ($this->filterField as $val)
-            {
-                $this->callFunc($val);
-            }
         }
 
         return $this->builder;
@@ -88,5 +81,18 @@ abstract class Filter
     protected function parames()
     {
         return array_filter($this->request->all());
+    }
+
+    /**
+     * Notes: 添加固定筛选字段
+     * Date: 2019/8/19 17:23
+     * @param mixed $params
+     * @return array
+     */
+    public function appendField($params)
+    {
+        $this->filterField = Arr::flatten(func_get_args());
+
+        return $this;
     }
 }
