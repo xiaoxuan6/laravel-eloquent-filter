@@ -10,6 +10,7 @@ namespace James\Eloquent\Filter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 abstract class Filter
 {
@@ -33,6 +34,13 @@ abstract class Filter
     protected $filterField = [];
 
     /**
+     * The Eloquent field
+     *
+     * @var array
+     */
+    protected $paramsField = [];
+
+    /**
      * Create a new ThreadFilters instance.
      *
      * @param Request $request
@@ -52,7 +60,9 @@ abstract class Filter
     {
         $this->builder = $builder;
 
-        foreach ($this->parames() + array_flip($this->filterField) as $key => $v)
+        $data = $this->parames() + array_flip($this->filterField) + $this->paramsField;
+
+        foreach ($data as $key => $v)
         {
             $this->callFunc($key, $v);
         }
@@ -92,6 +102,16 @@ abstract class Filter
     public function appendField($params)
     {
         $this->filterField = Arr::flatten(func_get_args());
+
+        foreach ($this->filterField as $key => $v)
+        {
+            if(Str::contains($v, ":"))
+            {
+                list($start, $end) = explode(':', $v, 2);
+                $this->paramsField[$start] = $end;
+                unset($this->filterField[$key]);
+            }
+        }
 
         return $this;
     }

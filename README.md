@@ -40,6 +40,11 @@ class Test extends Model
     {
         $this->builder->where('name', 'like', "%测试%");
     }
+    
+    public function mobile($mobile)
+    {
+        $mobile ? $this->builder->where('mobile', $mobile) : $this->builder;
+    }
 
  一对多
     public function title($title)
@@ -57,10 +62,15 @@ class Test extends Model
 public function index(TestFilter $filter)
 {
     Test::filter($filter)->get(); 
-    // Or
+    
+    // 支持传参
     Test::filter($filter, 'name')->get();
     // Or
     Test::filter($filter, ['name'])->get();
+    
+    // 支持传参带参数
+    $mobile = "18551233215";
+    Test::filter($filter, ['mobile:'.$mobile])->get();
 }
 
 ~~~
