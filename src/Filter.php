@@ -62,6 +62,8 @@ abstract class Filter
 
         $data = $this->parames() + array_flip($this->filterField) + $this->paramsField;
 
+        unset($data['filter']);
+
         foreach ($data as $key => $v)
         {
             $this->callFunc($key, $v);
