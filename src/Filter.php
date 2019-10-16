@@ -61,11 +61,12 @@ abstract class Filter
         $this->builder = $builder;
 
         $data = $this->parames() + array_flip($this->filterField) + $this->paramsField;
-
         unset($data['filter']);
 
         foreach ($data as $key => $v)
         {
+            $v = Str::contains($v, '|') ? explode('|', $v) : [$v];
+
             $this->callFunc($key, $v);
         }
 
@@ -78,10 +79,10 @@ abstract class Filter
      * @param $key
      * @param string $val
      */
-    protected function callFunc($key, $val = '')
+    protected function callFunc($key, $val)
     {
         if(method_exists($this, $key)) {
-            call_user_func([$this, $key], $val);
+            call_user_func_array([$this, $key], $val);
         }
     }
 
