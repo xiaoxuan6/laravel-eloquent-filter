@@ -45,6 +45,13 @@ class Test extends Model
     {
         $mobile ? $this->builder->where('mobile', $mobile) : $this->builder;
     }
+    
+    支持传递查询类型
+    public function pid($val, $params = '')
+    {
+     !$params ? $this->builder->where('pid', $val) : $this->builder->where('pid', $params, $val);
+    }
+    
 
  一对多
     public function title($title)
@@ -53,6 +60,7 @@ class Test extends Model
             return $q->where('title', 'like', "%{$title}%");
         });
     }
+ 
 ~~~
 
 ### Controller
@@ -71,6 +79,9 @@ public function index(TestFilter $filter)
     // 支持传参带参数
     $mobile = "18551233215";
     Test::filter($filter, ['mobile:'.$mobile])->get();
+    
+    // 支持传递查询类型
+    Banner::filter($bannerFilter, ['pid:0|<>'])->get();
 }
 
 ~~~
