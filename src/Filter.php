@@ -5,6 +5,7 @@
  * Date: 2019/8/16
  * Time: 17:04
  */
+
 namespace James\Eloquent\Filter;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -56,34 +57,25 @@ abstract class Filter
      * @param  \Illuminate\Database\Eloquent\Builder $builder
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function filter(Builder $builder)
+    public function filterQuery(Builder $builder): Builder
     {
         $this->builder = $builder;
 
-        $data = $this->parames() + array_flip($this->filterField) + $this->paramsField;
-        unset($data['filter']);
+        $data = $this->getRequest() + array_flip($this->filterField) + $this->paramsField;
 
-        foreach ($data as $key => $v)
-        {
-            $v = Str::contains($v, '|') ? explode('|', $v) : [$v];
+        foreach ($data as $method => $params) {
 
-            $this->callFunc($key, $v);
+            $params = Str::contains($params, '|') ? explode('|', $params) : [$params];
+
+            if (method_exists($this, $method)) {
+                call_user_func_array([$this, $method], $params);
+            } else {
+                $this->builder->where($method, $params);
+            }
+
         }
 
         return $this->builder;
-    }
-
-    /**
-     *
-     * @param $builder
-     * @param $key
-     * @param string $val
-     */
-    protected function callFunc($key, $val)
-    {
-        if(method_exists($this, $key)) {
-            call_user_func_array([$this, $key], $val);
-        }
     }
 
     /**
@@ -91,9 +83,9 @@ abstract class Filter
      *
      * @return array
      */
-    protected function parames()
+    protected function getRequest()
     {
-        return array_filter($this->request->all());
+        return array_filter($this->request->all(), 'strlen');
     }
 
     /**
@@ -106,14 +98,16 @@ abstract class Filter
     {
         $this->filterField = Arr::flatten(func_get_args());
 
-        foreach ($this->filterField as $key => $v)
-        {
-            if(Str::contains($v, ":"))
-            {
+        foreach ($this->filterField as $key => $v) {
+
+            if (Str::contains($v, ":")) {
+
                 list($start, $end) = explode(':', $v, 2);
                 $this->paramsField[$start] = $end;
                 unset($this->filterField[$key]);
+
             }
+
         }
 
         return $this;
