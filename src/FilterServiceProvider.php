@@ -1,15 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: james.xue
- * Date: 2019/8/16
- * Time: 18:43
+ * This file is part of PHP CS Fixer.
+ *
+ * (c) vinhson <15227736751@qq.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
-
 namespace James\Eloquent\Filter;
 
-use Illuminate\Support\ServiceProvider;
+use InvalidArgumentException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\{Arr, ServiceProvider};
 use James\Eloquent\Filter\Commands\FilterMakeCommand;
 
 class FilterServiceProvider extends ServiceProvider
@@ -39,7 +41,6 @@ class FilterServiceProvider extends ServiceProvider
         }
 
         $this->registerFilter();
-
     }
 
     /**
@@ -49,22 +50,24 @@ class FilterServiceProvider extends ServiceProvider
     protected function registerFilter()
     {
         Builder::macro('filter', function ($query = null, $params = []): Builder {
-
-            if (empty($query)) {
+            if (empty($query) || ! $query instanceof Builder) {
+                if ($query && ! $query instanceof Filter) {
+                    $params = Arr::wrap($query);
+                }
 
                 $namespace = trim(app('config')->get('filter.namespace'), '\\');
 
-                $flter = $namespace . "\\" . basename(get_class($this->model)) . "Filter";
+                $filter = $namespace . '\\' . basename(get_class($this->model)) . 'Filter';
 
-                if (!class_exists($flter))
-                    throw new \InvalidArgumentException("Class {$flter} not found");
+                if (! class_exists($filter)) {
+                    throw new InvalidArgumentException("Class {$filter} not found");
+                }
 
-                $query = new $flter(request());
-
+                /** @var $query Filter */
+                $query = new $filter(request());
             }
 
             return $query->appendField($params)->filterQuery($this);
-
         });
     }
 }

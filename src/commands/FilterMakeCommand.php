@@ -1,15 +1,16 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: james.xue
- * Date: 2020/6/11
- * Time: 14:40
+ * This file is part of PHP CS Fixer.
+ *
+ * (c) vinhson <15227736751@qq.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
-
 namespace James\Eloquent\Filter\Commands;
 
-use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
+use Illuminate\Console\GeneratorCommand;
 
 class FilterMakeCommand extends GeneratorCommand
 {
@@ -39,18 +40,18 @@ class FilterMakeCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function getStub()
+    protected function getStub(): string
     {
-        return __DIR__.'/stubs/filter.stub';
+        return __DIR__ . '/stubs/filter.stub';
     }
 
     /**
      * Get the default namespace for the class.
      *
-     * @param  string  $rootNamespace
+     * @param string $rootNamespace
      * @return string
      */
-    protected function getDefaultNamespace($rootNamespace)
+    protected function getDefaultNamespace($rootNamespace): string
     {
         return trim(config('filter')['namespace'], '\\');
     }
@@ -60,11 +61,11 @@ class FilterMakeCommand extends GeneratorCommand
      *
      * @return string
      */
-    protected function getNameInput()
+    protected function getNameInput(): string
     {
         $name = trim($this->argument('name'));
 
-        if (!Str::endsWith($name, 'Filter')) {
+        if (! Str::endsWith($name, 'Filter')) {
             $name .= 'Filter';
         }
 

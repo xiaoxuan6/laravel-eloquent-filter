@@ -18,12 +18,22 @@
     ],
     "require": {
         "php": ">=7.0",
-        "illuminate/database": "~5.0",
-        "illuminate/support": "~5.0"
+        "illuminate/database": "~5.0||~6.0||~7.0||~8.0||~9.0",
+        "illuminate/support": "~5.0||~6.0||~7.0||~8.0||~9.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "~v3.4",
+        "laravel/framework": "~5.0||~6.0||~7.0||~8.0||~9.0",
+        "orchestra/testbench": "~6.0||7.1.0"
     },
     "autoload": {
         "psr-4": {
             "James\\Eloquent\\Filter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "James\\Eloquent\\Filter\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -32,5 +42,13 @@
                 "James\\Eloquent\\Filter\\FilterServiceProvider"
             ]
         }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "fix-style": "vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php --using-cache=no --ansi"
+    },
+    "scripts-descriptions": {
+        "test": "Run all tests.",
+        "fix-style": "Run style checks and fix violations."
     }
 }

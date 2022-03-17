@@ -1,17 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: james.xue
- * Date: 2019/8/16
- * Time: 17:04
+ * This file is part of PHP CS Fixer.
+ *
+ * (c) vinhson <15227736751@qq.com>
+ *
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
  */
-
 namespace James\Eloquent\Filter;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use Illuminate\Support\{Arr, Str};
+use Illuminate\Database\Eloquent\Builder;
 
 abstract class Filter
 {
@@ -23,7 +23,7 @@ abstract class Filter
     /**
      * The Eloquent builder.
      *
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var Builder
      */
     protected $builder;
 
@@ -54,8 +54,8 @@ abstract class Filter
     /**
      * the filter.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $builder
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @param Builder $builder
+     * @return Builder
      */
     public function filterQuery(Builder $builder): Builder
     {
@@ -65,14 +65,73 @@ abstract class Filter
 
         foreach ($data as $method => $params) {
 
+            // 处理多条件查询，查询字段名相同
+            if (is_numeric($method) && count($params) == 2) {
+                $method = $params[0];
+                $params = $params[1];
+            }
+
             $params = Str::contains($params, '|') ? explode('|', $params) : [$params];
 
-            if (method_exists($this, $method)) {
+            $method = Str::camel($method);
+            if (method_exists($this, $method) && count($params) == 1) {
                 call_user_func_array([$this, $method], $params);
+            }
+            // 处理指定字段条件查询
+            elseif (count($params) == 2) {
+                $operator = Str::camel($params[1]);
+                switch ($operator) {
+                    case 'in':
+                        $this->builder->whereIn($method, explode(',', $params[0]));
+
+                        break;
+                    case 'or':
+                        $this->builder->orWhere($method, $params[0]);
+
+                        break;
+                    case 'notIn':
+                        $this->builder->whereNotIn($method, explode(',', $params[0]));
+
+                        break;
+                    case 'between':
+                        $this->builder->whereBetween($method, explode(',', $params[0]));
+
+                        break;
+                    case 'notBetween':
+                        $this->builder->whereNotBetween($method, explode(',', $params[0]));
+
+                        break;
+                    case 'null':
+                        $this->builder->whereNull($method);
+
+                        break;
+                    case 'notnull':
+                        $this->builder->whereNotNull($method);
+
+                        break;
+                    case '=':
+                    case '>':
+                    case '<':
+                    case '<>':
+                        $this->builder->where($method, $operator, $params[0]);
+
+                        break;
+                    case 'like':
+                        $this->builder->where($method, $operator, '%' . $params[0] . '%');
+
+                        break;
+                    case 'start':
+                        $this->builder->where($method, 'like', $params[0] . '%');
+
+                        break;
+                    case 'end':
+                        $this->builder->where($method, 'like', '%' . $params[0]);
+
+                        break;
+                }
             } else {
                 $this->builder->where($method, $params);
             }
-
         }
 
         return $this->builder;
@@ -83,7 +142,7 @@ abstract class Filter
      *
      * @return array
      */
-    protected function getRequest()
+    protected function getRequest(): array
     {
         return array_filter($this->request->all(), 'strlen');
     }
@@ -91,23 +150,18 @@ abstract class Filter
     /**
      * Notes: 添加固定筛选字段
      * Date: 2019/8/19 17:23
-     * @param mixed $params
-     * @return array
+     * @param array $params
+     * @return Filter
      */
-    public function appendField($params)
+    public function appendField(array $params): Filter
     {
         $this->filterField = Arr::flatten(func_get_args());
 
         foreach ($this->filterField as $key => $v) {
-
-            if (Str::contains($v, ":")) {
-
-                list($start, $end) = explode(':', $v, 2);
-                $this->paramsField[$start] = $end;
+            if (Str::contains($v, ':')) {
+                $this->paramsField[] = explode(':', $v, 2);
                 unset($this->filterField[$key]);
-
             }
-
         }
 
         return $this;
