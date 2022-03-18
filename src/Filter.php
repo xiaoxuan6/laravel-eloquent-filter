@@ -9,9 +9,10 @@
  */
 namespace James\Eloquent\Filter;
 
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\{Arr, Str};
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\{Arr, Facades\Schema, Str};
 
 abstract class Filter
 {
@@ -56,6 +57,7 @@ abstract class Filter
      *
      * @param Builder $builder
      * @return Builder
+     * @throws Exception
      */
     public function filterQuery(Builder $builder): Builder
     {
@@ -79,6 +81,8 @@ abstract class Filter
             }
             // 处理指定字段条件查询
             elseif (count($params) == 2) {
+                $this->hasColumn($method);
+
                 $operator = Str::camel($params[1]);
                 switch ($operator) {
                     case 'in':
@@ -130,6 +134,8 @@ abstract class Filter
                         break;
                 }
             } else {
+                $this->hasColumn($method);
+
                 $this->builder->where($method, $params);
             }
         }
@@ -145,6 +151,18 @@ abstract class Filter
     protected function getRequest(): array
     {
         return array_filter($this->request->all(), 'strlen');
+    }
+
+    /**
+     * @param string $column
+     * @throws Exception
+     */
+    protected function hasColumn(string $column)
+    {
+        $table = $this->builder->getModel()->getTable();
+        if (! Schema::hasColumn($table, $column)) {
+            throw new Exception(sprintf('table %s not has filed %s', $table, $column));
+        }
     }
 
     /**

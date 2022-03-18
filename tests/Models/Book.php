@@ -10,19 +10,11 @@
 namespace James\Eloquent\Filter\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class User extends Model
+class Book extends Model
 {
     use HasFactory;
 
     protected $guarded = [];
-
-    protected $table = 'users';
-
-    public function book(): HasMany
-    {
-        return $this->hasMany(Book::class);
-    }
 }

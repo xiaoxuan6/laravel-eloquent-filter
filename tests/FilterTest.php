@@ -10,11 +10,19 @@
 namespace James\Eloquent\Filter\Tests;
 
 use Illuminate\Support\Facades\DB;
-use James\Eloquent\Filter\Tests\Models\User;
 use James\Eloquent\Filter\Tests\Filters\UserFilter;
+use James\Eloquent\Filter\Tests\Models\{Book, User};
 
 class FilterTest extends TestCase
 {
+    public function test_factory()
+    {
+        User::factory()->create(['sex' => '男']);
+
+        $this->assertEquals(1, User::query()->count());
+        $this->assertEquals(1, User::query()->filter('sex:男')->count());
+    }
+
     /**
      * @dataProvider data
      */
@@ -137,5 +145,32 @@ class FilterTest extends TestCase
                 ]
             ]
         ];
+    }
+
+    public function test_relation_book()
+    {
+        User::factory()->create();
+        $user = User::factory()->create(['id' => 10]);
+        Book::factory()->create(['user_id' => $user->getKey()]);
+
+        $relation = User::query()->with('book')->find(10)->book;
+        $this->assertSame('10', $relation->first()->user_id);
+
+        Book::factory()->create(['user_id' => $user->getKey(), 'name' => 'demo']);
+        Book::factory()->create(['user_id' => $user->getKey() + 1, 'name' => 'demo']);
+
+        $relation = User::query()->with('book')->filter(new UserFilter(request()->merge(['book_name' => 'demo'])))->get();
+        $this->assertCount(1, $relation);
+        $this->assertCount(2, $relation->first()->book);
+
+        $relation = User::query()->with('book')->find(10);
+        $this->assertCount(2, $relation->book);
+
+        $book = Book::query()->get();
+        $this->assertCount(3, $book);
+
+        $book = Book::query()->selectRaw('count(*) as count, user_id')->groupBy('user_id')->get()->pluck('count', 'user_id');
+        $this->assertSame('2', $book['10']);
+        $this->assertSame('1', $book['11']);
     }
 }

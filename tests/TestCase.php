@@ -11,6 +11,7 @@ namespace James\Eloquent\Filter\Tests;
 
 use Illuminate\Foundation\Application;
 use James\Eloquent\Filter\FilterServiceProvider;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -18,6 +19,12 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
         $this->loadMigrationsFrom(__DIR__ . '/migrations');
+
+        Factory::guessFactoryNamesUsing(
+            function (string $modelName) {
+                return 'James\\Eloquent\\Filter\\Tests\\Factory\\' . class_basename($modelName) . 'Factory';
+            }
+        );
     }
 
     protected function getEnvironmentSetUp($app)

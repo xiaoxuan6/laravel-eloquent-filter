@@ -28,4 +28,11 @@ class UserFilter extends Filter
     {
         return $this->builder->where('name', 'like', '%' . $name . '%');
     }
+
+    public function bookName($bookName): Builder
+    {
+        return $this->builder->whereHas('book', function (Builder $query) use ($bookName) {
+            return $query->where('name', $bookName);
+        });
+    }
 }
