@@ -88,6 +88,10 @@ abstract class Filter
             $params = Str::contains($params, '|') ? explode('|', $params) : [$params];
 
             $method = Str::camel($method);
+            if (in_array($method, $this->ignoreRequest)) {
+                continue;
+            }
+
             if (method_exists($this, $method) && count($params) == 1) {
                 call_user_func_array([$this, $method], $params);
             } // 处理指定字段条件查询
