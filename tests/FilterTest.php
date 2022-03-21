@@ -10,8 +10,8 @@
 namespace James\Eloquent\Filter\Tests;
 
 use Illuminate\Support\Facades\DB;
-use James\Eloquent\Filter\Tests\Filters\UserFilter;
-use James\Eloquent\Filter\Tests\Models\{Book, User};
+use James\Eloquent\Filter\Tests\Models\{Book, Oauth, User};
+use James\Eloquent\Filter\Tests\Filters\{OauthFilter, UserFilter};
 
 class FilterTest extends TestCase
 {
@@ -172,5 +172,62 @@ class FilterTest extends TestCase
         $book = Book::query()->selectRaw('count(*) as count, user_id')->groupBy('user_id')->get()->pluck('count', 'user_id');
         $this->assertSame('2', $book['10']);
         $this->assertSame('1', $book['11']);
+    }
+
+    public function test_ignore_filter()
+    {
+        User::factory()->create(['name' => 'eto']);
+        User::factory()->create(['name' => 'vinhson']);
+
+        $user = User::ignoreRequest('name')->get();
+        $this->assertCount('2', $user);
+        $user = User::ignoreRequest('name')->filter()->get();
+        $this->assertCount('2', $user);
+
+        $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('1', $user);
+        $user = User::ignoreRequest('name')->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('2', $user);
+    }
+
+    public function test_accept_filter()
+    {
+        User::factory()->create(['name' => 'eto']);
+        User::factory()->create(['name' => 'vinhson']);
+
+        $user = User::acceptRequest('name')->get();
+        $this->assertCount('2', $user);
+        $user = User::acceptRequest('name')->filter()->get();
+        $this->assertCount('2', $user);
+
+        $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('1', $user);
+        $user = User::acceptRequest('name')->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('2', $user);
+    }
+
+    public function test_parent_filter()
+    {
+        $this->withoutExceptionHandling();
+
+        Oauth::factory()->create([]);
+
+        $oauth = Oauth::query()->filter()->get();
+        $this->assertCount('1', $oauth);
+
+        Oauth::factory()->create(['name' => 'eto']);
+        $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('1', $oauth);
+
+        Oauth::ignoreRequest('name');
+        $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('2', $oauth);
+
+        Oauth::ignoreRequest([]);
+        $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('1', $oauth);
+
+        $oauth = Oauth::ignoreRequest('name')->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
+        $this->assertCount('2', $oauth);
     }
 }

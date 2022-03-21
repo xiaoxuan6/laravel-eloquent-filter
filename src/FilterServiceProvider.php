@@ -9,6 +9,7 @@
  */
 namespace James\Eloquent\Filter;
 
+use Closure;
 use InvalidArgumentException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\{Arr, ServiceProvider};
@@ -49,7 +50,12 @@ class FilterServiceProvider extends ServiceProvider
      */
     protected function registerFilter()
     {
-        Builder::macro('filter', function ($query = null, $params = []): Builder {
+        Builder::macro('filter', $this->builder());
+    }
+
+    protected function builder(): Closure
+    {
+        return function ($query = null, $params = []): Builder {
             if (empty($query) || ! $query instanceof Builder) {
                 if ($query && ! $query instanceof Filter) {
                     $params = Arr::wrap($query);
@@ -67,7 +73,20 @@ class FilterServiceProvider extends ServiceProvider
                 $query = new $filter(request());
             }
 
-            return $query->appendField($params)->filterQuery($this);
-        });
+            $traits = class_uses_recursive($this->model);
+            if (in_array(Filterable::class, $traits)) {
+                $query->setIgnoreRequest($this->model::getIgnoreRequest());
+                $query->setAcceptRequest($this->model::getAcceptRequest());
+            }
+
+            $builder = $query->appendField($params)->filterQuery($this);
+
+            if (in_array(Filterable::class, $traits)) {
+                $this->model::ignoreRequest([]);
+                $this->model::acceptRequest([]);
+            }
+
+            return $builder;
+        };
     }
 }

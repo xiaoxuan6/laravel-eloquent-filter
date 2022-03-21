@@ -9,6 +9,7 @@
  */
 namespace James\Eloquent\Filter\Tests\Models;
 
+use James\Eloquent\Filter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class User extends Model
 {
     use HasFactory;
+    use Filterable;
 
+    /**
+     * @var array|mixed
+     */
     protected $guarded = [];
 
     protected $table = 'users';

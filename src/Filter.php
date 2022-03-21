@@ -43,6 +43,16 @@ abstract class Filter
     protected $paramsField = [];
 
     /**
+     * @var array
+     */
+    protected $ignoreRequest = [];
+
+    /**
+     * @var array
+     */
+    protected $acceptRequest = [];
+
+    /**
      * Create a new ThreadFilters instance.
      *
      * @param Request $request
@@ -64,6 +74,7 @@ abstract class Filter
         $this->builder = $builder;
 
         $data = $this->getRequest() + array_flip($this->filterField) + $this->paramsField;
+        Arr::forget($data, array_merge($this->ignoreRequest, $this->acceptRequest));
 
         foreach ($data as $method => $params) {
 
@@ -78,8 +89,7 @@ abstract class Filter
             $method = Str::camel($method);
             if (method_exists($this, $method) && count($params) == 1) {
                 call_user_func_array([$this, $method], $params);
-            }
-            // 处理指定字段条件查询
+            } // 处理指定字段条件查询
             elseif (count($params) == 2) {
                 $this->hasColumn($method);
 
@@ -181,6 +191,20 @@ abstract class Filter
                 unset($this->filterField[$key]);
             }
         }
+
+        return $this;
+    }
+
+    public function setIgnoreRequest($ignore): Filter
+    {
+        $this->ignoreRequest = Arr::wrap($ignore);
+
+        return $this;
+    }
+
+    public function setAcceptRequest($accept): Filter
+    {
+        $this->acceptRequest = Arr::wrap($accept);
 
         return $this;
     }

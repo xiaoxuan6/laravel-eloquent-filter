@@ -11,10 +11,13 @@ namespace James\Eloquent\Filter\Tests;
 
 use Illuminate\Foundation\Application;
 use James\Eloquent\Filter\FilterServiceProvider;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
+    use RefreshDatabase;
+
     protected function setUp(): void
     {
         parent::setUp();
