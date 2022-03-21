@@ -202,7 +202,12 @@ class FilterTest extends TestCase
 
         $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
         $this->assertCount('1', $user);
-        $user = User::acceptRequest('name')->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
+
+        User::factory()->create(['name' => 'eto', 'email' => '123@qq.com']);
+        User::factory()->create(['name' => 'vinhson', 'email' => '123@qq.com']);
+        $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto', 'email' => '123@qq.com'])))->get();
+        $this->assertCount('1', $user);
+        $user = User::acceptRequest('email')->filter(new UserFilter(request()->merge(['name' => 'eto', 'email' => '123@qq.com'])))->get();
         $this->assertCount('2', $user);
     }
 

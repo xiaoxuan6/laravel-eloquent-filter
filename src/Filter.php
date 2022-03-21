@@ -74,7 +74,8 @@ abstract class Filter
         $this->builder = $builder;
 
         $data = $this->getRequest() + array_flip($this->filterField) + $this->paramsField;
-        Arr::forget($data, array_merge($this->ignoreRequest, $this->acceptRequest));
+        $this->ignoreRequest && Arr::forget($data, $this->ignoreRequest);
+        $this->acceptRequest && $data = Arr::only($data, $this->acceptRequest);
 
         foreach ($data as $method => $params) {
 
@@ -195,6 +196,10 @@ abstract class Filter
         return $this;
     }
 
+    /**
+     * @param $ignore
+     * @return $this
+     */
     public function setIgnoreRequest($ignore): Filter
     {
         $this->ignoreRequest = Arr::wrap($ignore);
@@ -202,6 +207,10 @@ abstract class Filter
         return $this;
     }
 
+    /**
+     * @param $accept
+     * @return $this
+     */
     public function setAcceptRequest($accept): Filter
     {
         $this->acceptRequest = Arr::wrap($accept);
