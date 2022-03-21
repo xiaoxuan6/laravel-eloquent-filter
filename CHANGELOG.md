@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-eloquent-filter` will be documented in this file.
 
+## 3.0.2 - 2022-03-21
+
+## What's Changed
+
+- 添加 ignoreRequest And acceptRequest
+
+**Full Changelog**: https://github.com/xiaoxuan6/laravel-eloquent-filter/compare/3.0.1...3.0.2
+
 ## 3.0.1 - 2022-03-18
 
 ## What's Changed
