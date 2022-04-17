@@ -231,7 +231,7 @@ class FilterTest extends TestCase
         Oauth::ignoreRequest([]);
         $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
         $this->assertCount('1', $oauth);
-//
+
         $oauth = Oauth::ignoreRequest('name')->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
         $this->assertCount('2', $oauth);
         $oauth = Oauth::ignoreRequest('name')->filter('name:eto')->get();
