@@ -63,7 +63,8 @@ class FilterServiceProvider extends ServiceProvider
 
                 $namespace = trim(app('config')->get('filter.namespace'), '\\');
 
-                $filter = $namespace . '\\' . basename(get_class($this->model)) . 'Filter';
+                $arr = explode('\\', get_class($this->model));
+                $filter = $namespace . '\\' . end($arr) . 'Filter';
 
                 if (! class_exists($filter)) {
                     throw new InvalidArgumentException("Class {$filter} not found");
