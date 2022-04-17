@@ -1,0 +1,9 @@
+<?php
+namespace DummyNamespace;
+
+use James\Eloquent\Filter\Filter;
+
+class DummyClass extends Filter
+{
+
+}
