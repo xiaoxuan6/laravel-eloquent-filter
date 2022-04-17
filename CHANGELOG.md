@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-eloquent-filter` will be documented in this file.
 
+## 3.0.4 - 2022-03-21
+
+**Full Changelog**: https://github.com/xiaoxuan6/laravel-eloquent-filter/compare/3.0.3...3.0.4
+
 ## 3.0.3 - 2022-03-21
 
 **Full Changelog**: https://github.com/xiaoxuan6/laravel-eloquent-filter/compare/3.0.2...3.0.3
