@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-eloquent-filter` will be documented in this file.
 
+## 3.0.5 - 2022-04-17
+
+# What's Changed
+
+- 1、修复文件名大小写问题
+- 2、修复 basename() 在 linux 失效问题
+
+**Full Changelog**: https://github.com/xiaoxuan6/laravel-eloquent-filter/compare/3.0.4...3.0.5
+
 ## 3.0.4 - 2022-03-21
 
 **Full Changelog**: https://github.com/xiaoxuan6/laravel-eloquent-filter/compare/3.0.3...3.0.4
