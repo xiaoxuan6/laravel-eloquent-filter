@@ -10,11 +10,20 @@ on:
 
 jobs:
   test:
-    name: phpunit Job
+    name: P${{ matrix.php_version }} - L${{ matrix.laravel }}
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [ 7.3, 7.4 ]
+        php_version: [ 8.0, 8.1 ]
+        laravel: [ 8.*, 9.* ]
+        dependency-version: [ prefer-stable ]
+        include:
+          - laravel: 9.*
+            testbench: 7.*
+          - laravel: 8.*
+            testbench: 6.*
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,7 +36,9 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
+          composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction --no-suggest
 
       - name: PHPUnit check
         run: ./vendor/bin/phpunit
