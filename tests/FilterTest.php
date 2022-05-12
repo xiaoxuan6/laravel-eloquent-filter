@@ -154,7 +154,7 @@ class FilterTest extends TestCase
         Book::factory()->create(['user_id' => $user->getKey()]);
 
         $relation = User::query()->with('book')->find(10)->book;
-        $this->assertSame('10', $relation->first()->user_id);
+        $this->assertSame(10, (int)$relation->first()->user_id);
 
         Book::factory()->create(['user_id' => $user->getKey(), 'name' => 'demo']);
         Book::factory()->create(['user_id' => $user->getKey() + 1, 'name' => 'demo']);
@@ -170,8 +170,8 @@ class FilterTest extends TestCase
         $this->assertCount(3, $book);
 
         $book = Book::query()->selectRaw('count(*) as count, user_id')->groupBy('user_id')->get()->pluck('count', 'user_id');
-        $this->assertSame('2', $book['10']);
-        $this->assertSame('1', $book['11']);
+        $this->assertSame(2, (int)$book['10']);
+        $this->assertSame(1, (int)$book['11']);
     }
 
     public function test_ignore_filter()
@@ -180,14 +180,14 @@ class FilterTest extends TestCase
         User::factory()->create(['name' => 'vinhson']);
 
         $user = User::ignoreRequest('name')->get();
-        $this->assertCount('2', $user);
+        $this->assertCount(2, $user);
         $user = User::ignoreRequest('name')->filter()->get();
-        $this->assertCount('2', $user);
+        $this->assertCount(2, $user);
 
         $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('1', $user);
+        $this->assertCount(1, $user);
         $user = User::ignoreRequest('name')->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('2', $user);
+        $this->assertCount(2, $user);
     }
 
     public function test_accept_filter()
@@ -196,19 +196,19 @@ class FilterTest extends TestCase
         User::factory()->create(['name' => 'vinhson']);
 
         $user = User::acceptRequest('name')->get();
-        $this->assertCount('2', $user);
+        $this->assertCount(2, $user);
         $user = User::acceptRequest('name')->filter()->get();
-        $this->assertCount('2', $user);
+        $this->assertCount(2, $user);
 
         $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('1', $user);
+        $this->assertCount(1, $user);
 
         User::factory()->create(['name' => 'eto', 'email' => '123@qq.com']);
         User::factory()->create(['name' => 'vinhson', 'email' => '123@qq.com']);
         $user = User::query()->filter(new UserFilter(request()->merge(['name' => 'eto', 'email' => '123@qq.com'])))->get();
-        $this->assertCount('1', $user);
+        $this->assertCount(1, $user);
         $user = User::acceptRequest('email')->filter(new UserFilter(request()->merge(['name' => 'eto', 'email' => '123@qq.com'])))->get();
-        $this->assertCount('2', $user);
+        $this->assertCount(2, $user);
     }
 
     public function test_parent_filter()
@@ -218,23 +218,23 @@ class FilterTest extends TestCase
         Oauth::factory()->create();
 
         $oauth = Oauth::query()->filter()->get();
-        $this->assertCount('1', $oauth);
+        $this->assertCount(1, $oauth);
 
         Oauth::factory()->create(['name' => 'eto']);
         $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('1', $oauth);
+        $this->assertCount(1, $oauth);
 
         Oauth::ignoreRequest('name');
         $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('2', $oauth);
+        $this->assertCount(2, $oauth);
 
         Oauth::ignoreRequest([]);
         $oauth = Oauth::query()->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('1', $oauth);
+        $this->assertCount(1, $oauth);
 
         $oauth = Oauth::ignoreRequest('name')->filter(new OauthFilter(request()->merge(['name' => 'eto'])))->get();
-        $this->assertCount('2', $oauth);
+        $this->assertCount(2, $oauth);
         $oauth = Oauth::ignoreRequest('name')->filter('name:eto')->get();
-        $this->assertCount('2', $oauth);
+        $this->assertCount(2, $oauth);
     }
 }

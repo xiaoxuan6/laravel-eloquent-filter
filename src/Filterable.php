@@ -21,7 +21,7 @@ trait Filterable
         self::$ignoreRequest = Arr::wrap($ignore);
     }
 
-    public function getIgnoreRequest(): array
+    public static function getIgnoreRequest(): array
     {
         return self::$ignoreRequest;
     }
@@ -31,7 +31,7 @@ trait Filterable
         self::$acceptRequest = Arr::wrap($accept);
     }
 
-    public function getAcceptRequest(): array
+    public static function getAcceptRequest(): array
     {
         return self::$acceptRequest;
     }
