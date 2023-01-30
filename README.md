@@ -31,12 +31,12 @@ php artisan make:filter Test
     
     public function name()
     {
-        $this->builder->where('name', 'like', "%测试%");
+        return $this->builder->where('name', 'like', "%测试%");
     }
     
     public function mobile($mobile)
     {
-        $mobile ? $this->builder->where('mobile', $mobile) : $this->builder;
+        return $mobile ? $this->builder->where('mobile', $mobile) : $this->builder;
     }
 
  一对多

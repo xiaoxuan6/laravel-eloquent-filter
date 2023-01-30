@@ -191,7 +191,9 @@ abstract class Filter
         $this->filterField = Arr::flatten(func_get_args());
 
         foreach ($this->filterField as $key => $v) {
-            if (Str::contains($v, ':')) {
+            if ($v instanceof Request) {
+                unset($this->filterField[$key]);
+            } elseif (Str::contains($v, ':')) {
                 $this->paramsField[] = explode(':', $v, 2);
                 unset($this->filterField[$key]);
             }
